@@ -7,6 +7,11 @@ public class PlayerController : MonoBehaviour {
     private Movement movement;
     private Status status;
     private PlayerAnimatorController playerAnimatorController;
+    private AudioSource audioSource;
+
+    [Header("Audio Clips")]
+    [SerializeField] private AudioClip audioClipWalk;
+    [SerializeField] private AudioClip audioClipRun;
 
 
     private void Init() {
@@ -17,6 +22,7 @@ public class PlayerController : MonoBehaviour {
         this.movement = gameObject.GetComponent<Movement>();
         this.status = gameObject.GetComponent<Status>();
         this.playerAnimatorController = gameObject.GetComponent<PlayerAnimatorController>();
+        this.audioSource = gameObject.GetComponent<AudioSource>();
     }
 
     private void Awake() {
@@ -25,8 +31,8 @@ public class PlayerController : MonoBehaviour {
 
     private void Update() {
         UpdateRotate(); // 마우스로 시점 회전
-        UpdateMove();
-        Debug.Log(this.playerAnimatorController.MoveSpeed);
+        UpdateMove();   // 키보드로 이동
+        UpdateJump();   // Spacebar 점프
     }
 
     private void UpdateRotate() {
@@ -49,12 +55,29 @@ public class PlayerController : MonoBehaviour {
 
             this.movement.MoveSpeed = isRun == true ? this.status.RunSpeed : this.status.WalkSpeed;
             this.playerAnimatorController.MoveSpeed = isRun == true ? 1 : 0.5f;
+            this.audioSource.clip = isRun == true ? this.audioClipRun : this.audioClipWalk;
+
+            if (!this.audioSource.isPlaying) {
+                this.audioSource.loop = true;
+                this.audioSource.Play();
+            }
         }
         else {
             this.movement.MoveSpeed = 0;
             this.playerAnimatorController.MoveSpeed = 0;
+
+            if (this.audioSource.isPlaying) {
+                this.audioSource.Stop();
+            }
         }
 
         this.movement.MoveTo(new Vector3(horizontal, 0, vertical));
+    }
+
+    private void UpdateJump() {
+        if (Input.GetKeyDown(KeyCode.Space)) {
+            this.movement.Jump();
+            // animation
+        }
     }
 }
