@@ -11,12 +11,14 @@ public class Movement : MonoBehaviour {
         }
     private Vector3 moveForce;
     private CharacterController characterController;
+    private RotateToMouse rotateToMouse;
     [SerializeField] private float jumpForce;
     [SerializeField] private float gravity;
 
 
     private void Init() {
         this.characterController = gameObject.GetComponent<CharacterController>();
+        this.rotateToMouse = gameObject.GetComponent<RotateToMouse>();
     }
 
     private void Awake() {
@@ -32,7 +34,9 @@ public class Movement : MonoBehaviour {
     }
 
     public void MoveTo(Vector3 dir) {
-        dir = transform.rotation * new Vector3(dir.x, 0, dir.z);
+        //dir = transform.rotation * new Vector3(dir.x, 0, dir.z);
+        dir = this.rotateToMouse.orientation.forward * dir.z + this.rotateToMouse.orientation.right * dir.x;
+        dir = dir.normalized;
         this.moveForce = new Vector3(dir.x * this.moveSpeed, this.moveForce.y, dir.z * this.moveSpeed);
     }
 

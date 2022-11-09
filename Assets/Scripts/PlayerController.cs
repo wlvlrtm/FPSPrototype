@@ -18,6 +18,7 @@ public class PlayerController : MonoBehaviour {
         // 커서 숨김, 현재 위치에 고정
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
+        
         this.rotateToMouse = gameObject.GetComponent<RotateToMouse>();
         this.movement = gameObject.GetComponent<Movement>();
         this.status = gameObject.GetComponent<Status>();
