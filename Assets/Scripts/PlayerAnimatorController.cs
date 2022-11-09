@@ -17,4 +17,8 @@ public class PlayerAnimatorController : MonoBehaviour {
     private void Awake() {
         Init();
     }
+
+    public void Play(string stateName, int layer, float normalizedTime) {
+        animator.Play(stateName, layer, normalizedTime);
+    }
 }

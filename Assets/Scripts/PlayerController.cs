@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour {
     private Movement movement;
     private Status status;
     private PlayerAnimatorController playerAnimatorController;
+    private WeaponAR weaponAR;
     private AudioSource audioSource;
 
     [Header("Audio Clips")]
@@ -24,6 +25,7 @@ public class PlayerController : MonoBehaviour {
         this.status = gameObject.GetComponent<Status>();
         this.playerAnimatorController = gameObject.GetComponent<PlayerAnimatorController>();
         this.audioSource = gameObject.GetComponent<AudioSource>();
+        this.weaponAR = gameObject.GetComponentInChildren<WeaponAR>();
     }
 
     private void Awake() {
@@ -34,6 +36,7 @@ public class PlayerController : MonoBehaviour {
         UpdateRotate(); // 마우스로 시점 회전
         UpdateMove();   // 키보드로 이동
         UpdateJump();   // Spacebar 점프
+        UpdateWeaponAction();
     }
 
     private void UpdateRotate() {
@@ -72,13 +75,22 @@ public class PlayerController : MonoBehaviour {
             }
         }
 
-        this.movement.MoveTo(new Vector3(horizontal, 0, vertical));
+        this.movement.MoveTo(new Vector3(horizontal, 0, vertical)); // 이동
     }
 
     private void UpdateJump() {
         if (Input.GetKeyDown(KeyCode.Space)) {
             this.movement.Jump();
             // animation
+        }
+    }
+
+    private void UpdateWeaponAction() {
+        if (Input.GetMouseButtonDown(0)) {
+            this.weaponAR.StartWeaponAction();
+        }
+        else if (Input.GetMouseButtonUp(0)) {
+            this.weaponAR.StopWeaponAction();
         }
     }
 }
