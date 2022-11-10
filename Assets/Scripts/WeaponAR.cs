@@ -31,25 +31,15 @@ public class WeaponAR : MonoBehaviour {
         PlaySound(this.audioClipTakeOutWeapon);
     }
 
-    private void Update() {
-        if (Input.GetKeyDown(KeyCode.E)) {
-            this.audioSource.Stop();
-            this.audioSource.clip = this.audioClipTakeOutWeapon;
-            this.audioSource.Play();
-        }
-    }
-
     private void PlaySound(AudioClip clip) {        
-        this.audioSource.Stop();
         this.audioSource.clip = clip;
         this.audioSource.Play();
-        Debug.Log($"{audioSource.isPlaying}");
     }
 
     public void StartWeaponAction(int type = 0) {
         if (type == 0) {    // 좌측 마우스 버튼 클릭; 사격
             if (this.weaponSetting.isAuto == true) {
-                StartCoroutine(OnAttackLoop());
+                StartCoroutine("OnAttackLoop");
             }
             else {
                 OnAttack();
@@ -59,13 +49,13 @@ public class WeaponAR : MonoBehaviour {
 
     public void StopWeaponAction(int type = 0) {
         if (type == 0) {
-            StopCoroutine(OnAttackLoop());
+            StopCoroutine("OnAttackLoop");
         }
     }
 
     private void OnAttack() {
         if (Time.time - this.lastAttackTime > this.weaponSetting.attackRate) {
-            if (this.playerAnimatorController.MoveSpeed > 0.5f) {   // 달리고 있을 때는 공격 불가
+            if (this.playerAnimatorController.MoveSpeed > 0.6f) {   // 달리고 있을 때는 공격 불가
                 return;
             }
 

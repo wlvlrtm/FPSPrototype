@@ -61,6 +61,7 @@ public class PlayerController : MonoBehaviour {
             this.playerAnimatorController.MoveSpeed = isRun == true ? 1 : 0.5f;
             this.audioSource.clip = isRun == true ? this.audioClipRun : this.audioClipWalk;
 
+
             if (!this.audioSource.isPlaying) {
                 this.audioSource.loop = true;
                 this.audioSource.Play();
