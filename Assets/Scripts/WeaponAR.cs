@@ -6,11 +6,17 @@ public class WeaponAR : MonoBehaviour {
     [Header("Audio Clips")]
     [SerializeField] 
     private AudioClip audioClipTakeOutWeapon;   // 무기 장착 SFX
+    [SerializeField]
+    private AudioClip audioClipFireFX;
     
     [Header("Weapon Setting")]
     [SerializeField]
     private WeaponSetting weaponSetting;    // 무기 설정
     private float lastAttackTime = 0;       // 직전 발사 시간 
+
+    [Header("Fire VFX")]
+    [SerializeField]
+    private GameObject muzzleFlashFX;
 
     private AudioSource audioSource;
     private PlayerAnimatorController playerAnimatorController;
@@ -29,9 +35,11 @@ public class WeaponAR : MonoBehaviour {
 
     private void OnEnable() {
         PlaySound(this.audioClipTakeOutWeapon);
+        this.muzzleFlashFX.SetActive(false);
     }
 
-    private void PlaySound(AudioClip clip) {        
+    private void PlaySound(AudioClip clip) {       
+        this.audioSource.Stop(); 
         this.audioSource.clip = clip;
         this.audioSource.Play();
     }
@@ -60,7 +68,9 @@ public class WeaponAR : MonoBehaviour {
             }
 
             this.lastAttackTime = Time.time;    // 발사 시간 업데이트
-            this.playerAnimatorController.Play("Fire", -1, 0);
+            this.playerAnimatorController.Play("Fire", -1, 0);  // 발사 애니메이션 재생
+            StartCoroutine("OnMuzzleFlashFX");
+            PlaySound(this.audioClipFireFX);
         }
     }
 
@@ -71,11 +81,9 @@ public class WeaponAR : MonoBehaviour {
         }
     }
 
-
-
-
-
-
-
-
+    private IEnumerator OnMuzzleFlashFX() {
+        this.muzzleFlashFX.SetActive(true);
+        yield return new WaitForSeconds(this.weaponSetting.attackRate * 0.3f);
+        this.muzzleFlashFX.SetActive(false);
+    }
 }
