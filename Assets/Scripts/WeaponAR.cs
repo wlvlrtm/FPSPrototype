@@ -18,15 +18,20 @@ public class WeaponAR : MonoBehaviour {
     [SerializeField]
     private GameObject muzzleFlashFX;
 
+    [Header("Spawn Points")]
+    [SerializeField]
+    private Transform casingSpawnPoint;
+
     private AudioSource audioSource;
     private PlayerAnimatorController playerAnimatorController;
-
+    private CasingMemoryPool casingMemoryPool;
     private bool isTaked = false;
 
 
     private void Init() {
         this.audioSource = GetComponent<AudioSource>();
         this.playerAnimatorController = GetComponentInParent<PlayerAnimatorController>();
+        this.casingMemoryPool = GetComponent<CasingMemoryPool>();
     }
 
     private void Awake() {
@@ -71,6 +76,7 @@ public class WeaponAR : MonoBehaviour {
             this.playerAnimatorController.Play("Fire", -1, 0);  // 발사 애니메이션 재생
             StartCoroutine("OnMuzzleFlashFX");
             PlaySound(this.audioClipFireFX);
+            casingMemoryPool.SpawnCasing(casingSpawnPoint.position, transform.right);
         }
     }
 
