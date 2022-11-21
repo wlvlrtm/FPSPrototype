@@ -2,7 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
+public class AmmoEvent : UnityEngine.Events.UnityEvent<int, int> { }
+
 public class WeaponAR : MonoBehaviour {
+
+    public AmmoEvent onAmmoEvent = new AmmoEvent();
+
     [Header("Audio Clips")]
     [SerializeField] 
     private AudioClip audioClipTakeOutWeapon;   // 무기 장착 SFX
@@ -27,11 +33,14 @@ public class WeaponAR : MonoBehaviour {
     private CasingMemoryPool casingMemoryPool;
     private bool isTaked = false;
 
+    public WeaponName weaponName => weaponSetting.weaponName;
+
 
     private void Init() {
         this.audioSource = GetComponent<AudioSource>();
         this.playerAnimatorController = GetComponentInParent<PlayerAnimatorController>();
         this.casingMemoryPool = GetComponent<CasingMemoryPool>();
+        weaponSetting.currentAmmo = weaponSetting.maxAmmo;
     }
 
     private void Awake() {
@@ -41,6 +50,7 @@ public class WeaponAR : MonoBehaviour {
     private void OnEnable() {
         PlaySound(this.audioClipTakeOutWeapon);
         this.muzzleFlashFX.SetActive(false);
+        this.onAmmoEvent.Invoke(weaponSetting.currentAmmo, weaponSetting.maxAmmo);
     }
 
     private void PlaySound(AudioClip clip) {       
@@ -73,6 +83,12 @@ public class WeaponAR : MonoBehaviour {
             }
 
             this.lastAttackTime = Time.time;    // 발사 시간 업데이트
+
+            if (weaponSetting.currentAmmo <= 0) {   // 탄 수 측정
+                return;
+            }
+            weaponSetting.currentAmmo -= 1;
+            this.onAmmoEvent.Invoke(weaponSetting.currentAmmo, weaponSetting.maxAmmo);
             this.playerAnimatorController.Play("Fire", -1, 0);  // 발사 애니메이션 재생
             StartCoroutine("OnMuzzleFlashFX");
             PlaySound(this.audioClipFireFX);
