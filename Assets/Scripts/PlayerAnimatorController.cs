@@ -8,6 +8,7 @@ public class PlayerAnimatorController : MonoBehaviour {
         set => this.animator.SetFloat("Speed", value, 0.05f, Time.deltaTime);
         get => this.animator.GetFloat("Speed");    
     }
+    
 
 
     private void Init() {
@@ -20,5 +21,13 @@ public class PlayerAnimatorController : MonoBehaviour {
 
     public void Play(string stateName, int layer, float normalizedTime) {
         animator.Play(stateName, layer, normalizedTime);
+    }
+
+    public void OnReload() {
+        this.animator.SetTrigger("onReload");
+    }
+
+    public bool CurrentAnimationIs(string name) {
+        return this.animator.GetCurrentAnimatorStateInfo(0).IsName(name);
     }
 }

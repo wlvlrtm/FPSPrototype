@@ -93,5 +93,9 @@ public class PlayerController : MonoBehaviour {
         else if (Input.GetMouseButtonUp(0)) {
             this.weaponAR.StopWeaponAction();
         }
+
+        if (Input.GetKeyDown(KeyCode.R)) {
+            this.weaponAR.StartReload();
+        }
     }
 }
