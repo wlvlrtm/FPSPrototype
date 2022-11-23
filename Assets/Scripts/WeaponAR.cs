@@ -59,9 +59,9 @@ public class WeaponAR : MonoBehaviour {
     }
 
     private void PlaySound(AudioClip clip) {       
-        this.audioSource.Stop(); 
-        this.audioSource.clip = clip;
-        this.audioSource.Play();
+        //this.audioSource.Stop(); 
+        //this.audioSource.clip = clip;
+        this.audioSource.PlayOneShot(clip); // 오디오 중첩 플레이 허용
     }
 
     public void StartWeaponAction(int type = 0) {

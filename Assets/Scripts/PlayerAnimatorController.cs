@@ -8,7 +8,6 @@ public class PlayerAnimatorController : MonoBehaviour {
         set => this.animator.SetFloat("Speed", value, 0.05f, Time.deltaTime);
         get => this.animator.GetFloat("Speed");    
     }
-    
 
 
     private void Init() {
@@ -25,6 +24,10 @@ public class PlayerAnimatorController : MonoBehaviour {
 
     public void OnReload() {
         this.animator.SetTrigger("onReload");
+    }
+
+    public void OnJump() {
+        this.animator.SetTrigger("onJump");
     }
 
     public bool CurrentAnimationIs(string name) {

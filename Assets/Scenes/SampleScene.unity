@@ -5003,6 +5003,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   audioClipWalk: {fileID: 8300000, guid: 74abbbf1b1724e34b894191db38e10a0, type: 3}
   audioClipRun: {fileID: 8300000, guid: d2add02f58e61e640aba3ae9110591cb, type: 3}
+  audioClipJump: {fileID: 8300000, guid: 55d0ab42a32220e4abc7d84563cc20ab, type: 3}
 --- !u!1 &8336987238809599418
 GameObject:
   m_ObjectHideFlags: 0

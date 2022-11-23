@@ -13,13 +13,14 @@ public class PlayerController : MonoBehaviour {
     [Header("Audio Clips")]
     [SerializeField] private AudioClip audioClipWalk;
     [SerializeField] private AudioClip audioClipRun;
+    [SerializeField] private AudioClip audioClipJump;
 
 
     private void Init() {
         // 커서 숨김, 현재 위치에 고정
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
-        
+
         this.rotateToMouse = gameObject.GetComponent<RotateToMouse>();
         this.movement = gameObject.GetComponent<Movement>();
         this.status = gameObject.GetComponent<Status>();
@@ -71,7 +72,7 @@ public class PlayerController : MonoBehaviour {
             this.movement.MoveSpeed = 0;
             this.playerAnimatorController.MoveSpeed = 0;
 
-            if (this.audioSource.isPlaying) {
+            if (this.movement.characterController.isGrounded) {   // 두 발이 땅에 붙어 있을 때(점프가 아닐 때) 오디오 정지
                 this.audioSource.Stop();
             }
         }
@@ -82,7 +83,12 @@ public class PlayerController : MonoBehaviour {
     private void UpdateJump() {
         if (Input.GetKeyDown(KeyCode.Space)) {
             this.movement.Jump();
+
             // animation
+            this.playerAnimatorController.OnJump();
+
+            // Sound
+            this.audioSource.PlayOneShot(this.audioClipJump);
         }
     }
 

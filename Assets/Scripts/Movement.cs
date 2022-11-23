@@ -10,7 +10,7 @@ public class Movement : MonoBehaviour {
             set {this.moveSpeed = Mathf.Max(0, value);}
         }
     private Vector3 moveForce;
-    private CharacterController characterController;
+    public CharacterController characterController;
     private RotateToMouse rotateToMouse;
     [SerializeField] private float jumpForce;
     [SerializeField] private float gravity;
