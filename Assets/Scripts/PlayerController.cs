@@ -100,6 +100,13 @@ public class PlayerController : MonoBehaviour {
             this.weaponAR.StopWeaponAction();
         }
 
+        if (Input.GetMouseButton(1)) {
+            this.weaponAR.StartWeaponAction(1);
+        }
+        else if (Input.GetMouseButtonUp(1)) {
+            this.weaponAR.StopWeaponAction(1);
+        }
+
         if (Input.GetKeyDown(KeyCode.R)) {
             this.weaponAR.StartReload();
         }

@@ -8,7 +8,14 @@ public class PlayerAnimatorController : MonoBehaviour {
         set => this.animator.SetFloat("Speed", value, 0.05f, Time.deltaTime);
         get => this.animator.GetFloat("Speed");    
     }
-
+    public bool AimModeIs {
+        set => this.animator.SetBool("isAimMode", value);
+        get => this.animator.GetBool("isAimMode");
+    }
+    public float Aiming {
+        set => this.animator.SetFloat("Aiming", value, 0.05f, Time.deltaTime);
+        get => this.animator.GetFloat("Aiming");
+    }
 
     private void Init() {
         this.animator = gameObject.GetComponentInChildren<Animator>();

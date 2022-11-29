@@ -2548,7 +2548,7 @@ Animator:
   m_Avatar: {fileID: 9000000, guid: 2c56a83c3431ae248a78a389fa783ea8, type: 3}
   m_Controller: {fileID: 9100000, guid: 3727b5c8a174ea14584d7f03f6c642e4, type: 2}
   m_CullingMode: 0
-  m_UpdateMode: 0
+  m_UpdateMode: 1
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
@@ -4184,6 +4184,7 @@ MonoBehaviour:
   muzzleFlashFX: {fileID: 437244729}
   casingSpawnPoint: {fileID: 815959700586263393}
   bulletSpawnPoint: {fileID: 815959700586263417}
+  imageAim: {fileID: 2129595616}
 --- !u!82 &6557358250425496710
 AudioSource:
   m_ObjectHideFlags: 0

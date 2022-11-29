@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 [System.Serializable]
 public class AmmoEvent : UnityEngine.Events.UnityEvent<int, int> { }
@@ -38,15 +39,24 @@ public class WeaponAR : MonoBehaviour {
     [SerializeField]
     private Transform bulletSpawnPoint;
 
+    [Header("Aim UI")]
+    [SerializeField]
+    private Image imageAim;
+
+    private bool isTaked = false;
+    private bool isReload = false;
+    private bool isAttack = false;  // 공격 여부 체크
+    private bool isModeChange = false;  // 정조준 여부 체크
+    private float defaultModeFOV = 60;
+    private float aimModeFOV = 30;  // 정조준 시 FOV
     private float lastAttackTime = 0;       // 직전 발사 시간 
+
     private AudioSource audioSource;
     private PlayerAnimatorController playerAnimatorController;
     private CasingMemoryPool casingMemoryPool;
-    private bool isTaked = false;
-    private bool isReload = false;
     private ImpactMemoryPool impactMemoryPool;
     private Camera mainCamera;
-
+    
     public WeaponName WeaponName => weaponSetting.weaponName;
     public int CurrentMagazine => weaponSetting.currentMagazine;
     public int MaxMagazine => weaponSetting.maxMagazine;
@@ -54,11 +64,11 @@ public class WeaponAR : MonoBehaviour {
 
     private void Init() {
         this.audioSource = GetComponent<AudioSource>();
-        this.playerAnimatorController = GetComponentInParent<PlayerAnimatorController>();
         this.casingMemoryPool = GetComponent<CasingMemoryPool>();
+        this.impactMemoryPool = GetComponent<ImpactMemoryPool>();
+        this.playerAnimatorController = GetComponentInParent<PlayerAnimatorController>();
         this.weaponSetting.currentAmmo = this.weaponSetting.maxAmmo;
         this.weaponSetting.currentMagazine = this.weaponSetting.maxMagazine;
-        this.impactMemoryPool = GetComponent<ImpactMemoryPool>();
         this.mainCamera = Camera.main;
     }
 
@@ -71,6 +81,16 @@ public class WeaponAR : MonoBehaviour {
         this.muzzleFlashFX.SetActive(false);
         this.onAmmoEvent.Invoke(this.weaponSetting.currentAmmo, this.weaponSetting.maxAmmo);
         this.onMagzineEvent.Invoke(this.weaponSetting.currentMagazine);
+        ResetValiables();
+    }
+
+    private void Update() {
+        if (this.playerAnimatorController.AimModeIs) {
+            this.playerAnimatorController.Aiming = 1;
+        }
+        else if (!this.playerAnimatorController.AimModeIs) {
+            this.playerAnimatorController.Aiming = 0;
+        }
     }
 
     private void PlaySound(AudioClip clip) {       
@@ -80,16 +100,31 @@ public class WeaponAR : MonoBehaviour {
     }
 
     public void StartWeaponAction(int type = 0) {
-        if (this.isReload == true) {
+        if (this.isReload == true) {    // 재장전 시 무기 액션 불가
             return;
         }
+
+        if (this.isModeChange == true) {    // 정조준 도중에는 무기 액션 불가
+            return;
+        }
+
         if (type == 0) {    // 좌측 마우스 버튼 클릭; 사격
             if (this.weaponSetting.isAuto == true) {
+                this.isAttack = true;
                 StartCoroutine("OnAttackLoop");
             }
             else {
                 OnAttack();
             }
+        }
+        else if (type == 1) {  // 우측 마우스 버튼 클릭; 정조준
+            if (this.isAttack == true) {
+                return;
+            }
+
+            this.playerAnimatorController.AimModeIs = true;
+            this.imageAim.enabled = false;
+            //StartCoroutine("OnFOVChange");
         }
     }
 
@@ -102,8 +137,14 @@ public class WeaponAR : MonoBehaviour {
     }
 
     public void StopWeaponAction(int type = 0) {
-        if (type == 0) {
+        if (type == 0) {    // 좌측 마우스 버튼 클릭 해제; 사격 종료
+            this.isAttack = false;
             StopCoroutine("OnAttackLoop");
+        }
+        else if (type == 1) {
+            this.playerAnimatorController.AimModeIs = false;
+            this.imageAim.enabled = true;
+            //StartCoroutine("OnFOVChange");
         }
     }
 
@@ -121,7 +162,14 @@ public class WeaponAR : MonoBehaviour {
             this.weaponSetting.currentAmmo -= 1;
             this.onAmmoEvent.Invoke(this.weaponSetting.currentAmmo, this.weaponSetting.maxAmmo);
             
-            this.playerAnimatorController.Play("Fire", 1, 0);  // 발사 애니메이션 재생
+            // 발사 애니메이션 재생
+            this.playerAnimatorController.Play("Fire", 1, 0);  
+            
+            /*
+            string animation = this.playerAnimatorController.AimModeIs == true ? "AimFire" : "Fire";
+            int layer = animation.Equals("Fire") == true ? 1 : 0;
+            this.playerAnimatorController.Play(animation, layer, 0);
+            */
             StartCoroutine("OnMuzzleFlashFX");
             PlaySound(this.audioClipFireFX);
             this.casingMemoryPool.SpawnCasing(this.casingSpawnPoint.position, transform.right);
@@ -143,26 +191,51 @@ public class WeaponAR : MonoBehaviour {
     }
 
     private IEnumerator OnReload() {
-        this.isReload = true;
+        if (!this.playerAnimatorController.CurrentAnimationIs("Aim_Pose")) {        
+            this.isReload = true;
+            this.playerAnimatorController.OnReload();
+            this.ARAnimator.SetTrigger("onReload");
+            PlaySound(this.audioClipReloadFX);    
+        }
 
-        this.playerAnimatorController.OnReload();
-        this.ARAnimator.SetTrigger("onReload");
-        PlaySound(this.audioClipReloadFX);
-
-        while(true) {
-            if (this.audioSource.isPlaying == false && this.playerAnimatorController.CurrentAnimationIs("Movement")) {
-                this.isReload = false;
+        while(this.isReload) {
+            this.isReload = false;
                 
-                this.weaponSetting.currentMagazine -= 1;    // 탄창 -1개
-                this.onMagzineEvent.Invoke(this.weaponSetting.currentMagazine);
+            this.weaponSetting.currentMagazine -= 1;    // 탄창 -1개
+            this.onMagzineEvent.Invoke(this.weaponSetting.currentMagazine);
 
-                this.weaponSetting.currentAmmo = this.weaponSetting.maxAmmo;    // 탄약 충전
-                this.onAmmoEvent.Invoke(this.weaponSetting.currentAmmo, this.weaponSetting.maxAmmo);
-                
-                yield break;
-            }
+            this.weaponSetting.currentAmmo = this.weaponSetting.maxAmmo;    // 탄약 충전
+            this.onAmmoEvent.Invoke(this.weaponSetting.currentAmmo, this.weaponSetting.maxAmmo);
+            
             yield return null;
         }
+    }
+
+    private IEnumerator OnFOVChange() {
+        float current = 0;
+        float percent = 0;
+        float time = 0.35f;
+
+        float start = this.mainCamera.fieldOfView;
+        float end = this.playerAnimatorController.AimModeIs == true ? this.aimModeFOV : this.defaultModeFOV;
+
+        this.isModeChange = true;
+
+        while (percent < 1) {
+            current += Time.deltaTime;
+            percent = current / time;
+
+            this.mainCamera.fieldOfView = Mathf.Lerp(start, end, percent);
+            yield return null;
+        }
+
+        this.isModeChange = false;
+    }
+
+    private void ResetValiables() {
+        this.isReload = false;
+        this.isAttack = false;
+        this.isModeChange = false;
     }
 
     private void TwoStepRayCast() {
