@@ -108,7 +108,7 @@ public class WeaponAR : MonoBehaviour {
             return;
         }
 
-        if (type == 0) {    // 좌측 마우스 버튼 클릭; 사격
+        if (type == 0) {    // 좌측 마우스 버튼 클릭; 사격            
             if (this.weaponSetting.isAuto == true) {
                 this.isAttack = true;
                 StartCoroutine("OnAttackLoop");
@@ -132,6 +132,7 @@ public class WeaponAR : MonoBehaviour {
         if (this.isReload == true || this.weaponSetting.currentAmmo == this.weaponSetting.maxAmmo || this.weaponSetting.currentMagazine <= 0) {
             return;
         }
+
         StopWeaponAction(); // 무기 액션 중지
         StartCoroutine("OnReload");
     }
@@ -159,6 +160,7 @@ public class WeaponAR : MonoBehaviour {
             if (this.weaponSetting.currentAmmo <= 0) {   // 탄 수 측정
                 return;
             }
+            
             this.weaponSetting.currentAmmo -= 1;
             this.onAmmoEvent.Invoke(this.weaponSetting.currentAmmo, this.weaponSetting.maxAmmo);
             
@@ -191,24 +193,23 @@ public class WeaponAR : MonoBehaviour {
     }
 
     private IEnumerator OnReload() {
-        if (!this.playerAnimatorController.CurrentAnimationIs("Aim_Pose")) {        
-            this.isReload = true;
-            this.playerAnimatorController.OnReload();
-            this.ARAnimator.SetTrigger("onReload");
-            PlaySound(this.audioClipReloadFX);    
-        }
+        this.isReload = true;
+        this.playerAnimatorController.ReloadingIs = true;
+        this.ARAnimator.SetTrigger("onReload");
+        PlaySound(this.audioClipReloadFX);
 
-        while(this.isReload) {
-            this.isReload = false;
-                
-            this.weaponSetting.currentMagazine -= 1;    // 탄창 -1개
-            this.onMagzineEvent.Invoke(this.weaponSetting.currentMagazine);
+        yield return new WaitForSeconds(3.13f); // 재장전 도중
 
-            this.weaponSetting.currentAmmo = this.weaponSetting.maxAmmo;    // 탄약 충전
-            this.onAmmoEvent.Invoke(this.weaponSetting.currentAmmo, this.weaponSetting.maxAmmo);
-            
-            yield return null;
-        }
+        this.playerAnimatorController.ReloadingIs = false;
+
+        this.weaponSetting.currentMagazine -= 1;    // 탄창 -1개
+        this.onMagzineEvent.Invoke(this.weaponSetting.currentMagazine);
+
+        this.weaponSetting.currentAmmo = this.weaponSetting.maxAmmo;    // 탄약 충전
+        this.onAmmoEvent.Invoke(this.weaponSetting.currentAmmo, this.weaponSetting.maxAmmo);
+  
+        this.isReload = false;
+        yield return null;
     }
 
     private IEnumerator OnFOVChange() {

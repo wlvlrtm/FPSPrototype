@@ -58,20 +58,22 @@ public class PlayerController : MonoBehaviour {
                 isRun = true;
             }
 
+            this.playerAnimatorController.RunningIs = isRun;
             this.movement.MoveSpeed = isRun == true ? this.status.RunSpeed : this.status.WalkSpeed;
             this.playerAnimatorController.MoveSpeed = isRun == true ? 1 : 0.5f;
             this.audioSource.clip = isRun == true ? this.audioClipRun : this.audioClipWalk;
-
+            this.playerAnimatorController.WalkingIs = true;
 
             if (!this.audioSource.isPlaying) {
                 this.audioSource.loop = true;
                 this.audioSource.Play();
             }
         }
-        else {
+        else {  // 정지 상태일 때
             this.movement.MoveSpeed = 0;
             this.playerAnimatorController.MoveSpeed = 0;
-
+            this.playerAnimatorController.WalkingIs = false;
+            
             if (this.movement.characterController.isGrounded) {   // 두 발이 땅에 붙어 있을 때(점프가 아닐 때) 오디오 정지
                 this.audioSource.Stop();
             }

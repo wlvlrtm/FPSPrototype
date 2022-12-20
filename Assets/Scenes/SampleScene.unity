@@ -4185,6 +4185,7 @@ MonoBehaviour:
   casingSpawnPoint: {fileID: 815959700586263393}
   bulletSpawnPoint: {fileID: 815959700586263417}
   imageAim: {fileID: 2129595616}
+  isAttack: 0
 --- !u!82 &6557358250425496710
 AudioSource:
   m_ObjectHideFlags: 0

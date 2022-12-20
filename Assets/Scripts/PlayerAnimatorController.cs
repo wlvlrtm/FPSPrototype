@@ -16,6 +16,19 @@ public class PlayerAnimatorController : MonoBehaviour {
         set => this.animator.SetFloat("Aiming", value, 0.05f, Time.deltaTime);
         get => this.animator.GetFloat("Aiming");
     }
+    public bool RunningIs {
+        set => this.animator.SetBool("isRunning", value);
+        get => this.animator.GetBool("isRunning");
+    }
+    public bool WalkingIs {
+        set => this.animator.SetBool("isWalking", value);
+        get => this.animator.GetBool("isWalking");
+    }
+    public bool ReloadingIs {
+        set => this.animator.SetBool("isReloading", value);
+        get => this.animator.GetBool("isReloading");
+    }
+
 
     private void Init() {
         this.animator = gameObject.GetComponentInChildren<Animator>();
@@ -27,10 +40,6 @@ public class PlayerAnimatorController : MonoBehaviour {
 
     public void Play(string stateName, int layer, float normalizedTime) {
         animator.Play(stateName, layer, normalizedTime);
-    }
-
-    public void OnReload() {
-        this.animator.SetTrigger("onReload");
     }
 
     public void OnJump() {
