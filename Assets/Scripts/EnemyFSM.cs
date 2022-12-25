@@ -7,7 +7,8 @@ public enum EnemyState {
     None = -1,
     Idle = 0,
     Wander,
-    Pursuit
+    Pursuit,
+    Attack,
 }
 
 public class EnemyFSM : MonoBehaviour {
@@ -18,17 +19,30 @@ public class EnemyFSM : MonoBehaviour {
     [SerializeField]
     private float pursuitLimitRange = 10;
 
+    [Header("Attack")]
+    [SerializeField]
+    private GameObject projectilePrefab;
+    [SerializeField]
+    private Transform projectileSpawnPoint;
+    [SerializeField]
+    private float attackRange = 5;
+    [SerializeField]
+    private float attackRate = 1;
+
+    private float lastAttackTime = 0;
     private EnemyState enemyState = EnemyState.None;
     private Status status;
     private NavMeshAgent navMeshAgent;
     private Transform target;
+    private EnemyMemoryPool enemyMemoryPool;
 
 
-    public void Setup(Transform target) {
+    public void Setup(Transform target, EnemyMemoryPool enemyMemoryPool) {
         this.status = GetComponent<Status>();
         this.navMeshAgent = GetComponent<NavMeshAgent>();
         this.target = target;
         this.navMeshAgent.updateRotation = false;   // 오브젝트 회전은 수동으로 조정
+        this.enemyMemoryPool = enemyMemoryPool;
     }
     
     private void OnEnable() {
@@ -111,6 +125,24 @@ public class EnemyFSM : MonoBehaviour {
         }
     }
 
+    private IEnumerator Attack() {
+        this.navMeshAgent.ResetPath();
+
+        while(true) {
+            LookRotationToTarget();
+            CalculateDistanceToTargetAndSelectState();
+
+            if (Time.time - this.lastAttackTime > this.attackRate) {
+                this.lastAttackTime = Time.time;
+
+                GameObject clone = Instantiate(projectilePrefab, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
+                clone.GetComponent<EnemyProjectile>().Setup(target.position);
+            }
+
+            yield return null;
+        }
+    }
+
     private void LookRotationToTarget() {
         Vector3 to = new Vector3(this.target.position.x, 0, target.position.z);
         Vector3 from = new Vector3(transform.position.x, 0, transform.position.z);
@@ -125,7 +157,10 @@ public class EnemyFSM : MonoBehaviour {
 
         float distance = Vector3.Distance(this.target.position, transform.position);
 
-        if (distance <= this.targetRecognitionRange) {
+        if (distance <= attackRange) {
+            ChangeState(EnemyState.Attack);
+        }
+        else if (distance <= this.targetRecognitionRange) {
             ChangeState(EnemyState.Pursuit);
         }
         else if (distance >= this.pursuitLimitRange) {
@@ -161,6 +196,14 @@ public class EnemyFSM : MonoBehaviour {
         return position;
     }
 
+    public void TakeDamage(int damage) {
+        bool isDie = this.status.DecreaseHP(damage);
+
+        if (isDie == true) {
+            this.enemyMemoryPool.DeactivateEnemy(gameObject);
+        }
+    }
+
     private void OnDrawGizoms() {
         Gizmos.color = Color.black;
         Gizmos.DrawRay(transform.position, this.navMeshAgent.destination - transform.position);
@@ -170,5 +213,8 @@ public class EnemyFSM : MonoBehaviour {
 
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, this.pursuitLimitRange);
+
+        Gizmos.color = new Color(0.39f, 0.04f, 0.04f);
+        Gizmos.DrawWireSphere(transform.position, attackRange);
     }
 }

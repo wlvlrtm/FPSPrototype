@@ -259,6 +259,10 @@ public class WeaponAR : MonoBehaviour {
 
         if (Physics.Raycast(bulletSpawnPoint.position, attackDirection, out hit, this.weaponSetting.attackDistance)) {
             this.impactMemoryPool.SpawnImpact(hit);
+
+            if (hit.transform.CompareTag("ImpactEnemy")) {
+                hit.transform.GetComponent<EnemyFSM>().TakeDamage(weaponSetting.damage);
+            }
         }
 
         Debug.DrawRay(bulletSpawnPoint.position, attackDirection * this.weaponSetting.attackDistance, Color.blue);

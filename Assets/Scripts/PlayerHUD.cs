@@ -6,13 +6,18 @@ using UnityEngine.UI;
 
 public class PlayerHUD : MonoBehaviour {
     [Header("Components")]
-    [SerializeField] private WeaponAR weapon;
+    [SerializeField] 
+    private WeaponAR weapon;
+    [SerializeField] 
+    private Status status;
 
     [Header("Weapon Base")]
-    [SerializeField] private TextMeshProUGUI textWeaponName;
-    
+    [SerializeField] 
+    private TextMeshProUGUI textWeaponName;
+
     [Header("Ammo")]
-    [SerializeField] private TextMeshProUGUI textAmmo;
+    [SerializeField] 
+    private TextMeshProUGUI textAmmo;
 
     [Header("Magazie")]
     [SerializeField]
@@ -20,6 +25,14 @@ public class PlayerHUD : MonoBehaviour {
     [SerializeField]
     private Transform magazineParent;
     private List<GameObject> magazineList;
+
+    [Header("HP & BloodScreen UI")]
+    [SerializeField]
+    private TextMeshProUGUI textHP;
+    [SerializeField]
+    private Image imageBloodScreen;
+    [SerializeField]
+    private AnimationCurve curveBloodScreen;
 
 
     private void Init() {
@@ -29,6 +42,7 @@ public class PlayerHUD : MonoBehaviour {
         // Listener 등록
         this.weapon.onAmmoEvent.AddListener(UpdateAmmoHUD);
         this.weapon.onMagzineEvent.AddListener(UpdateMagazineHUD);
+        this.status.onHPEvent.AddListener(UpdateHPHUD);
     }   
 
     private void Awake() {
@@ -66,6 +80,28 @@ public class PlayerHUD : MonoBehaviour {
 
         for (int i = 0; i < currentMagazine; ++i) {
             this.magazineList[i].SetActive(true);
+        }
+    }
+    private void UpdateHPHUD(int previous, int current) {
+        this.textHP.text = "HP: " + current;
+
+        if (previous - current > 0) {
+            StopCoroutine("OnBloodScreen");
+            StartCoroutine("OnBloodScreen");
+        }
+    }
+
+    private IEnumerator OnBloodScreen() {
+        float percent = 0;
+
+        while (percent < 1) {
+            percent += Time.deltaTime;
+
+            Color color = this.imageBloodScreen.color;
+            color.a = Mathf.Lerp(0.5f, 0, this.curveBloodScreen.Evaluate(percent));
+            this.imageBloodScreen.color = color;
+
+            yield return null;
         }
     }
 
