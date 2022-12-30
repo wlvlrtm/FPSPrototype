@@ -263,6 +263,9 @@ public class WeaponAR : MonoBehaviour {
             if (hit.transform.CompareTag("ImpactEnemy")) {
                 hit.transform.GetComponent<EnemyFSM>().TakeDamage(weaponSetting.damage);
             }
+            else if (hit.transform.CompareTag("InteractionObject")) {
+                hit.transform.GetComponent<InteractionObject>().TakeDamage(weaponSetting.damage);
+            }
         }
 
         Debug.DrawRay(bulletSpawnPoint.position, attackDirection * this.weaponSetting.attackDistance, Color.blue);
