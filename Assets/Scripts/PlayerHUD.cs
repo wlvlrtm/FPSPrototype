@@ -85,6 +85,10 @@ public class PlayerHUD : MonoBehaviour {
     private void UpdateHPHUD(int previous, int current) {
         this.textHP.text = "HP: " + current;
 
+        if (previous <= current) {  // HP 증가
+            return;
+        }
+
         if (previous - current > 0) {
             StopCoroutine("OnBloodScreen");
             StartCoroutine("OnBloodScreen");

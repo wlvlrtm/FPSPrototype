@@ -270,4 +270,9 @@ public class WeaponAR : MonoBehaviour {
 
         Debug.DrawRay(bulletSpawnPoint.position, attackDirection * this.weaponSetting.attackDistance, Color.blue);
     }
+
+    public void IncreaseMagazine(int magazine) {
+        this.weaponSetting.currentMagazine = CurrentMagazine + magazine > MaxMagazine ? MaxMagazine : CurrentMagazine + magazine;
+        this.onMagzineEvent.Invoke(CurrentMagazine);
+    }
 }

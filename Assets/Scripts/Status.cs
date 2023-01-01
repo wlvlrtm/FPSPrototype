@@ -43,12 +43,19 @@ public class Status : MonoBehaviour {
         int previousHP = this.currentHP;
 
         this.currentHP = this.currentHP - damage > 0 ? currentHP - damage : 0;
-        this.onHPEvent.Invoke(previousHP, currentHP);
+        this.onHPEvent.Invoke(previousHP, this.currentHP);
 
         if (currentHP == 0) {
             return true;
         }
         
         return false;
+    }
+
+    public void IncreaseHP(int hp) {
+        int previousHP = this.currentHP;
+
+        this.currentHP = this.currentHP + hp > this.maxHP ? this.maxHP : this.currentHP + hp;
+        this.onHPEvent.Invoke(previousHP, this.currentHP);
     }
 }
